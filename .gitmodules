@@ -10,3 +10,6 @@
 [submodule "Multiview/lib/abseil-cpp"]
 	path = Multiview/lib/abseil-cpp
 	url = https://github.com/abseil/abseil-cpp.git
+[submodule "Multiview/lib/flatbuffers"]
+	path = Multiview/lib/flatbuffers
+	url = https://github.com/google/flatbuffers.git
