@@ -3,8 +3,8 @@
 # Minimum cmake version
 cmake_minimum_required (VERSION 3.14 FATAL_ERROR)
 
-# Abseil currently supports C++14, C++17, and C++20.
-set(CMAKE_CXX_STANDARD 14)
+# Abseil currently supports >= C++17.
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # For Open3D Link:http://www.open3d.org/docs/latest/tutorial/C++/cplusplus_interface.html#ubuntu-macos
@@ -15,6 +15,10 @@ endif()
 
 # Eigen
 find_package(Eigen3 REQUIRED NO_MODULE)
+
+# FFMpeg
+set(FFMPEG_SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/lib/FFmpeg)
+add_subdirectory(${FFMPEG_SRC_DIR}) 
 
 # Add FlatBuffers directly to our build. This defines the `flatbuffers` target.
 set(FLATBUFFERS_SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/lib/flatbuffers)
