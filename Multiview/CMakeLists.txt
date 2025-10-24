@@ -16,10 +16,6 @@ endif()
 # Eigen
 find_package(Eigen3 REQUIRED NO_MODULE)
 
-# FFMpeg
-set(FFMPEG_SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/lib/FFmpeg)
-add_subdirectory(${FFMPEG_SRC_DIR}) 
-
 # Add FlatBuffers directly to our build. This defines the `flatbuffers` target.
 set(FLATBUFFERS_SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/lib/flatbuffers)
 add_subdirectory(${FLATBUFFERS_SRC_DIR}
