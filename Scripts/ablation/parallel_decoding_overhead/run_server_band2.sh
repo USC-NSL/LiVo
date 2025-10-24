@@ -1,0 +1,47 @@
+# Using livo_nocull
+
+COLOR_BITRATE=60000
+DEPTH_BITRATE=60000
+
+SERVER_CULLING=0
+sculling="nocull"
+METHOD="livo_nocull"
+
+# CONFIG
+LOG_ID=1
+START_FRAME=2
+END_FRAME=5517
+
+FPS=30
+
+SEQ_ID=160906
+SEQ_NAME_SHORT=band2
+SEQ_NAME=${SEQ_ID}_${SEQ_NAME_SHORT}_with_ground
+CONFIG_FILE=/home/lei/rajrup/KinectStream/Multiview/config/panoptic_${SEQ_ID}_${SEQ_NAME_SHORT}.json
+
+output_dir="/home/lei/data/pipeline/server_tiled/pipeline_new/test/"
+
+# Run Pipeline without mahimahi, abr, and save frames
+taskset --cpu-list 0-11 ../../../build/Multiview/MultiviewServerPoolNew \
+        --seq_name=$SEQ_NAME \
+        --config_file=$CONFIG_FILE \
+        --start_frame_id=$START_FRAME \
+        --end_frame_id=$END_FRAME \
+        --ground=true \
+        --use_mm=false \
+        --cb=$COLOR_BITRATE \
+        --db=$DEPTH_BITRATE \
+        --use_server_bitrate_est=false \
+        --use_client_bitrate_split=true \
+        --mm_trace_name=$MM_TRACE_NAME \
+        --server_fps=$FPS \
+        --output_dir=$output_dir \
+        --server_cull=$SERVER_CULLING \
+        > ./log/server_${SEQ_NAME_SHORT}_s_${sculling}_logID_${LOG_ID}.log 2>&1
+
+# For tailing the log file with important information
+# tail -f server_band2.log | grep -Ei "fps|bwe|bitrate"
+
+
+# For parallel decoding overhead
+# Uncomment set_color_pipeline_with_distortion_analysis, and set_depth_pipeline_yuv16_with_distortion_analysis

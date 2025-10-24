@@ -1,0 +1,7 @@
+namespace Multiview.Frame;
+
+table FrameInfo
+{
+    frame_number:int = -1;
+    view_number:int = -1;
+}

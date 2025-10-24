@@ -1,0 +1,15 @@
+[submodule "Multiview/lib/flatbuffers"]
+	path = Multiview/lib/flatbuffers
+	url = https://github.com/google/flatbuffers.git
+[submodule "Multiview/lib/json"]
+	path = Multiview/lib/json
+	url = https://github.com/nlohmann/json.git
+[submodule "Multiview/lib/boost"]
+	path = Multiview/lib/boost
+	url = https://github.com/boostorg/boost.git
+[submodule "Multiview/lib/gflags"]
+	path = Multiview/lib/gflags
+	url = https://github.com/gflags/gflags.git
+[submodule "Multiview/lib/abseil-cpp"]
+	path = Multiview/lib/abseil-cpp
+	url = https://github.com/abseil/abseil-cpp.git

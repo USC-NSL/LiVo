@@ -1,0 +1,28 @@
+# CONFIG
+START_FRAME=34
+END_FRAME=10000
+FPS=30
+COLOR_QP=0
+DEPTH_QP=35
+LOG_ID=0
+
+SEQ_NAME=170307_dance5_with_ground
+CONFIG_FILE=/home/lei/rajrup/KinectStream/Multiview/config/panoptic_170307_dance5.json
+
+# Run Pipeline without mahimahi, abr, and save frames
+taskset --cpu-list 0-11 ../../../build/Multiview/MultiviewServerPoolNew \
+        --seq_name=$SEQ_NAME \
+        --config_file=$CONFIG_FILE \
+        --start_frame_id=$START_FRAME \
+        --end_frame_id=$END_FRAME \
+        --ground=true \
+        --send_ptcl=0 \
+        --use_mm=false \
+        --use_server_bitrate=false \
+        --use_client_bitrate=false \
+        --cqp=$COLOR_QP \
+        --dqp=$DEPTH_QP \
+        --server_fps=$FPS \
+        --save_frame=false \
+        --server_cull=0 \
+        > log/server_dance5.log 2>&1

@@ -1,0 +1,11 @@
+{
+	"seq_name": "170307_dance5",
+	"panoptic_path": "/home/lei/data/KinectStream/panoptic_captures/",
+	"user_trace_path": "/home/lei/rajrup/KinectStream/data/",
+	"user_trace_folder": "user_log/2023-03-09/",
+	"qrcode_folder": "/home/lei/data/KinectStream/panoptic_captures/qr/",
+	"log_id": 0,
+	"seq_start_end": "FrameIndices.json",
+	"ptcl_streamer_ip_address": "127.0.0.1",
+	"ptcl_streamer_port": 9000
+}

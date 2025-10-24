@@ -1,0 +1,9 @@
+{
+	"seq_name": "160906_pizza1",
+	"panoptic_path": "/datassd/KinectStream/panoptic_data/",
+	"user_trace_path": "/home/lei/rajrup/KinectStream/data/",
+	"user_trace_folder": "user_log_updated/",
+	"qrcode_folder": "/datassd/KinectStream/panoptic_data/qr/",
+	"log_id": 1,
+	"seq_start_end": "FrameIndices.json"
+}

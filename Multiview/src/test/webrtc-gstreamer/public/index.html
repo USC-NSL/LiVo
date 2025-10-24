@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>WebRTC Stream</title>
+</head>
+<body>
+  <video id="video" autoplay playsinline muted></video>
+  <script>
+    const video = document.getElementById('video');
+    const signaling = new WebSocket('ws://localhost:8000/ws');
+    let pc = new RTCPeerConnection({
+      iceServers: [{urls: 'stun:stun.l.google.com:19302'}]
+    });
+
+    signaling.onmessage = async (event) => {
+      const data = JSON.parse(event.data);
+      console.log('Received signaling message:', data);
+
+      if (data.type === 'answer') {
+        console.log('Setting remote description with answer');
+        await pc.setRemoteDescription(new RTCSessionDescription(data));
+      } else if (data.type === 'candidate') {
+        console.log('Adding ICE candidate:', data.ice);
+        await pc.addIceCandidate(new RTCIceCandidate(data.ice));
+      }
+    };
+
+    pc.onicecandidate = (event) => {
+      if (event.candidate) {
+        console.log('Sending ICE candidate:', event.candidate);
+        signaling.send(JSON.stringify({
+          type: 'candidate',
+          ice: event.candidate
+        }));
+      }
+    };
+
+    pc.ontrack = (event) => {
+      console.log('Received track:', event);
+      if (event.track.kind === 'video') {
+        console.log('Attaching video track to video element');
+        console.log('Number of streams:', event.streams.length);
+        // Attach the video stream to the video element and autoplay.
+        video.srcObject = event.streams[0];
+        // video.play().catch(error => {
+        //   console.error('Error playing video:', error);
+        // });
+        // Show loading animation.
+        var playPromise = video.play();
+
+        if (playPromise !== undefined) {
+          playPromise.then(_ => {
+            // Automatic playback started!
+            // Show playing UI.
+          })
+          .catch(error => {
+            console.error('Error playing video:', error);
+            // Auto-play was prevented
+            // Show paused UI.
+          });
+        }
+
+        video.load();
+      }
+    };
+
+    pc.oniceconnectionstatechange = () => {
+      console.log('ICE connection state:', pc.iceConnectionState);
+    };
+
+    pc.onicegatheringstatechange = () => {
+      console.log('ICE gathering state:', pc.iceGatheringState);
+    };
+
+    pc.onsignalingstatechange = () => {
+      console.log('Signaling state:', pc.signalingState);
+    };
+
+    async function start() {
+      pc.addTransceiver('video', {direction: 'recvonly'});
+      const offer = await pc.createOffer();
+      console.log('Created offer:', offer);
+      await pc.setLocalDescription(offer);
+      console.log('Set local description with offer');
+      signaling.send(JSON.stringify({type: 'offer', sdp: pc.localDescription.sdp}));
+    }
+
+    start();
+  </script>
+</body>
+</html>
+

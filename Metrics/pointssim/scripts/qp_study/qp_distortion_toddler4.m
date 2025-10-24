@@ -1,0 +1,158 @@
+clear all;
+close all;
+clc;
+
+% taskset --cpu-list 16-19 matlab -nodisplay -nosplash -nodesktop -r "addpath(genpath('/home/lei/rajrup/KinectStream/Metrics/pointssim'));"
+% qp_distortion_toddler4
+
+%% Add path
+logID = 0;
+depth_qp = 0;
+for color_qp = 10:10:51
+
+    % toddler4
+    base_path = '/datassd/pipeline_cpp/client_tiled/ablation/bitrate_study/170915_toddler4_with_ground';
+    start_frame = 0;    % Always start from 0 for 100 stepsize. Check the for loop below.
+    end_frame = 3800;
+
+    original_path = sprintf('%s/o3d_gt_with_ground_s_nocull_c_nocull/log%d/', base_path, logID);
+    distorted_path = sprintf('%s/o3d_nvenc_cqp%d_d_yuvqp%d_fps30_s_nocull_c_nocull/log%d/', base_path, color_qp, depth_qp, logID);
+    comp_path = sprintf('%s/comp_o3d_pointssim/log%d/', base_path, logID);
+
+    if ~exist(comp_path, 'dir')
+        mkdir(comp_path);
+    end
+
+    out_file_path = sprintf('%s/3D_cqp%d_d_yuvqp%d_pssim.csv', comp_path, color_qp, depth_qp);
+    metrics_file = fopen(out_file_path, 'w');
+    fprintf(metrics_file, 'Frame,PSSIM_GEO_AB,AVG_PSSIM_GEO_AB,PSSIM_GEO_BA,AVG_PSSIM_GEO_BA,PSSIM_COLOR_AB,AVG_PSSIM_COLOR_AB,PSSIM_COLOR_BA,AVG_PSSIM_COLOR_BA\n');
+
+    %% Configurations
+    PARAMS.ATTRIBUTES.GEOM = true;
+    PARAMS.ATTRIBUTES.NORM = false;
+    PARAMS.ATTRIBUTES.CURV = false;
+    PARAMS.ATTRIBUTES.COLOR = true;
+
+    % PARAMS.ESTIMATOR_TYPE = {'VAR', 'Mean'};
+    PARAMS.ESTIMATOR_TYPE = {'Mean'};
+    PARAMS.POOLING_TYPE = {'Mean'};
+    PARAMS.NEIGHBORHOOD_SIZE = 12;
+    PARAMS.CONST = eps(1);
+    PARAMS.REF = 0;
+
+    FITTING.SEARCH_METHOD = 'rs';
+    if strcmp(FITTING.SEARCH_METHOD, 'rs')
+        ratio = 0.01;
+    elseif strcmp(FITTING.SEARCH_METHOD, 'knn')
+        knn = 12;
+    end
+    FITTING.SEARCH_SIZE = [];
+
+    QUANT.VOXELIZATION = false;
+    QUANT.TARGET_BIT_DEPTH = 9;
+
+    pssim_geomAB_list = [];
+    pssim_colorAB_list = [];
+    pssim_geomBA_list = [];
+    pssim_colorBA_list = [];
+    for frameID = start_frame:100:end_frame+1
+
+        %% Load point clouds
+        % gt_fname = sprintf("%s%d.ply", original_path, frameID)
+        if isfile([original_path, num2str(frameID), '.ply']) == 0
+            fprintf('File %s does not exist\n', [original_path, num2str(frameID), '.ply']);
+            fprintf("Skipping frame %d\n", frameID)
+            continue;
+        end
+
+        if isfile([distorted_path, num2str(frameID), '.ply']) == 0
+            fprintf('File %s does not exist\n', [distorted_path, num2str(frameID), '.ply']);
+            fprintf("Skipping frame %d\n", frameID)
+            continue;
+        end
+
+        A = pcread([original_path, num2str(frameID), '.ply']);
+        B = pcread([distorted_path, num2str(frameID), '.ply']);
+
+        %% Sort geometry
+        [geomA, idA] = sortrows(A.Location);
+        if ~isempty(A.Color)
+            colorA = A.Color(idA, :);
+            A = pointCloud(geomA, 'Color', colorA);
+        else
+            A = pointCloud(geomA);
+        end
+
+        [geomB, idB] = sortrows(B.Location);
+        if ~isempty(B.Color)
+            colorB = B.Color(idB, :);
+            B = pointCloud(geomB, 'Color', colorB);
+        else
+            B = pointCloud(geomB);
+        end
+
+
+        %% Point fusion
+        A = pc_fuse_points(A);
+        B = pc_fuse_points(B);
+
+
+        %% Voxelization
+        if QUANT.VOXELIZATION
+            A = pc_vox_scale(A, [], QUANT.TARGET_BIT_DEPTH);
+            B = pc_vox_scale(B, [], QUANT.TARGET_BIT_DEPTH);
+        end
+
+
+        %% Normals and curvatures estimation
+        if PARAMS.ATTRIBUTES.NORM || PARAMS.ATTRIBUTES.CURV
+            if strcmp(FITTING.SEARCH_METHOD, 'rs')
+                FITTING.SEARCH_SIZE = round(ratio * double(max(max(A.Location) - min(A.Location))));
+            else
+                FITTING.SEARCH_SIZE = knn;
+            end
+            [normA, curvA] = pc_estimate_norm_curv_qfit(A, FITTING.SEARCH_METHOD, FITTING.SEARCH_SIZE);
+            [normB, curvB] = pc_estimate_norm_curv_qfit(B, FITTING.SEARCH_METHOD, FITTING.SEARCH_SIZE);
+        end
+
+
+        %% Set custom structs with required fields
+        sA.geom = A.Location;
+        sB.geom = B.Location;
+        if PARAMS.ATTRIBUTES.NORM
+            sA.norm = normA;
+            sB.norm = normB; 
+        end
+        if PARAMS.ATTRIBUTES.CURV
+            sA.curv = curvA;
+            sB.curv = curvB;
+        end
+        if PARAMS.ATTRIBUTES.COLOR
+            sA.color = A.Color;
+            sB.color = B.Color;
+        end
+
+
+        %% Compute structural similarity scores
+        [pssim] = pointssim(sA, sB, PARAMS);
+        pssim_geomAB = pssim.geomAB * 100.0;
+        pssim_colorAB = pssim.colorAB * 100.0;
+        pssim_geomBA = pssim.geomBA * 100.0;
+        pssim_colorBA = pssim.colorBA * 100.0;
+
+        pssim_geomAB_list = [pssim_geomAB_list, pssim_geomAB];
+        pssim_colorAB_list = [pssim_colorAB_list, pssim_colorAB];
+        pssim_geomBA_list = [pssim_geomBA_list, pssim_geomBA];
+        pssim_colorBA_list = [pssim_colorBA_list, pssim_colorBA];
+
+        avg_pssim_geomAB = mean(pssim_geomAB_list);
+        avg_pssim_colorAB = mean(pssim_colorAB_list);
+        avg_pssim_geomBA = mean(pssim_geomBA_list);
+        avg_pssim_colorBA = mean(pssim_colorBA_list);
+
+        fprintf(metrics_file, '%d,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f\n', frameID, pssim_geomAB, avg_pssim_geomAB, pssim_geomBA, avg_pssim_geomBA, pssim_colorAB, avg_pssim_colorAB, pssim_colorBA, avg_pssim_colorBA);
+
+        fprintf('Frame %d: PSSIM_GEO_BA:%.2f, AVG_PSSIM_GEO_BA:%.2f, PSSIM_COLOR_BA:%.2f, AVG_PSSIM_COLOR_BA:%.2f\n', frameID, pssim_geomBA, avg_pssim_geomBA, pssim_colorBA, avg_pssim_colorBA);
+        fprintf('Frame %d: PSSIM_GEO_AB:%.2f, AVG_PSSIM_GEO_AB:%.2f, PSSIM_COLOR_AB:%.2f, AVG_PSSIM_COLOR_AB:%.2f\n', frameID, pssim_geomAB, avg_pssim_geomAB, pssim_colorAB, avg_pssim_colorAB);
+    end
+end

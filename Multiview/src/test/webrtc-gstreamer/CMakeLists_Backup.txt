@@ -1,0 +1,85 @@
+cmake_minimum_required(VERSION 3.10)
+
+# Set the project name and version
+project(webrtc_server VERSION 1.0)
+
+# Specify the C++ standard
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD_REQUIRED True)
+
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
+
+# Find required packages
+find_package(PkgConfig REQUIRED)
+
+# Package check (Original)
+pkg_check_modules(GST REQUIRED gstreamer-1.0 gstreamer-webrtc-1.0 gstreamer-sdp-1.0)
+
+# Package check
+# Alternative package check found here: https://github.com/sampleref/gst-webrtc-example/blob/master/CMakeLists.txt
+# Another: https://github.com/sampleref/gstreamer-cpp-example/blob/master/CMakeLists.txt
+# pkg_check_modules(GST REQUIRED gstreamer-1.0 gstreamer-webrtc-1.0 gstreamer-sdp-1.0 
+#                 gobject-2.0
+#                 glib-2.0
+#                 gstreamer-1.0
+#                 gstreamer-rtp-1.0
+#                 gstreamer-sdp-1.0
+#                 gstreamer-webrtc-1.0
+#                 gstreamer-webrtc-nice-1.0
+#                 gstreamer-pbutils-1.0
+#                 libsoup-2.4
+#                 json-glib-1.0
+#                 gstreamer-rtsp-server-1.0
+#                 gstreamer-check-1.0
+#                 gstreamer-app-1.0)
+
+find_package(Boost 1.65 REQUIRED COMPONENTS system filesystem json)
+
+# Include directories (Original)
+include_directories(${GST_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS})
+
+# Include directories
+# Alternative inlude directories found here: https://github.com/sampleref/gst-webrtc-example/blob/master/CMakeLists.txt
+# Another: https://github.com/sampleref/gstreamer-cpp-example/blob/master/CMakeLists.txt
+# include_directories(${GST_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} 
+# /usr/lib/x86_64-linux-gnu/glib-2.0/include
+# /usr/include/glib-2.0
+# /usr/local/include/gstreamer-1.0
+# /usr/include/libsoup-2.4
+# /usr/local/include/json-glib-1.0)
+
+# Specify additional directories for the linker
+link_directories(${GST_LIBRARY_DIRS})
+
+# Add the executable
+add_executable(webrtc_server main.cpp)
+
+# Link libraries
+target_link_libraries(webrtc_server ${GST_LIBRARIES} Boost::system Boost::filesystem Boost::json)
+
+# Set properties
+set_target_properties(webrtc_server PROPERTIES
+    CXX_STANDARD 14
+    CXX_STANDARD_REQUIRED ON
+)
+
+# Print project info
+message(STATUS "Project: ${PROJECT_NAME}")
+message(STATUS "Version: ${PROJECT_VERSION}")
+message(STATUS "C++ Standard: ${CMAKE_CXX_STANDARD}")
+message(STATUS "Boost Libraries: ${Boost_LIBRARIES}")
+message(STATUS "GStreamer Libraries: ${GST_LIBRARIES}")
+
+##################################### TESTING #####################################
+
+# Sender Only C++ Test
+add_executable(sender_only 
+                sender_only.cpp)
+
+target_link_libraries(sender_only ${GST_LIBRARIES} Boost::system Boost::filesystem Boost::json)
+
+# Sender Only C++ Test
+add_executable(receiver_only 
+                receiver_only.cpp)
+
+target_link_libraries(receiver_only ${GST_LIBRARIES} Boost::system Boost::filesystem Boost::json)
