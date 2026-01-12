@@ -1,5 +1,7 @@
 # LiVo
-LiVo: Toward Bandwidth-adaptive Fully-Immersive Volumetric Video Conferencing, CoNEXT 2025
+LiVo: Toward Bandwidth-adaptive Fully-Immersive Volumetric Video Conferencing, CoNEXT 2025.
+
+Paper: https://dl.acm.org/doi/abs/10.1145/3768981
 
 ## Clone the repository
 Clone this repository with submodules.
