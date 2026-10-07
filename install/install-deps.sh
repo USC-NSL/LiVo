@@ -23,7 +23,7 @@ esac
 COMMON_PACKAGES=(
   build-essential git git-lfs ca-certificates curl wget xz-utils unzip
   pkg-config autoconf automake libtool m4 perl flex bison gettext
-  ninja-build python3 python3-dev python3-pip python3-venv
+  ninja-build python3 python3-pip
   libssl-dev libsrtp2-dev libopus-dev libvpx-dev libffi-dev
   zlib1g-dev libpcre2-dev libmount-dev libselinux1-dev
   libx11-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev
@@ -40,11 +40,17 @@ COMMON_PACKAGES=(
 )
 
 case "${VERSION_ID}" in
-  18.04|20.04)
-    VERSION_PACKAGES=(libvtk7-dev libvtk7-qt-dev)
+  18.04)
+    VERSION_PACKAGES=(
+      libvtk7-dev libvtk7-qt-dev
+      python3.8 python3.8-dev python3.8-venv
+    )
+    ;;
+  20.04)
+    VERSION_PACKAGES=(libvtk7-dev libvtk7-qt-dev python3-dev python3-venv)
     ;;
   22.04)
-    VERSION_PACKAGES=(libvtk9-dev libvtk9-qt-dev gcc-10 g++-10)
+    VERSION_PACKAGES=(libvtk9-dev libvtk9-qt-dev gcc-10 g++-10 python3-dev python3-venv)
     ;;
 esac
 
@@ -59,7 +65,9 @@ for package in "${COMMON_PACKAGES[@]}" "${VERSION_PACKAGES[@]}"; do
     log "Package is unavailable on Ubuntu ${VERSION_ID}; skipping: ${package}"
   fi
 done
-sudo DEBIAN_FRONTEND=noninteractive apt-get install -y "${AVAILABLE_PACKAGES[@]}"
+# Install missing prerequisites without upgrading unrelated multiarch packages.
+# This avoids cross-architecture version skew on older Ubuntu installations.
+sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --no-upgrade "${AVAILABLE_PACKAGES[@]}"
 
 version_ge() {
   [[ "$(printf '%s\n%s\n' "$2" "$1" | sort -V | head -n1)" == "$2" ]]
@@ -131,11 +139,21 @@ if ! version_ge "$(cmake --version | awk 'NR==1 {print $3}')" "${MIN_CMAKE_VERSI
   die "CMake ${MIN_CMAKE_VERSION}+ is required"
 fi
 
-python_cmd="$(command -v python3)"
-python_version="$("${python_cmd}" -c 'import sys; print(".".join(map(str, sys.version_info[:3])))')"
-if ! version_ge "${python_version}" "3.8.0"; then
-  die "Python 3.8+ is required to build GStreamer 1.24.13. Install Python 3.8+ and rerun."
-fi
+python_cmd=""
+python_version=""
+for candidate in python3 python3.8; do
+  if command -v "${candidate}" >/dev/null 2>&1; then
+    candidate_path="$(command -v "${candidate}")"
+    candidate_version="$("${candidate_path}" -c 'import sys; print(".".join(map(str, sys.version_info[:3])))')"
+    if version_ge "${candidate_version}" "3.8.0"; then
+      python_cmd="${candidate_path}"
+      python_version="${candidate_version}"
+      break
+    fi
+  fi
+done
+[[ -n "${python_cmd}" ]] || die "Python 3.8+ is required to build GStreamer 1.24.13"
+log "Using Python ${python_version} at ${python_cmd}"
 
 venv="${TOOLS_DIR}/venv"
 "${python_cmd}" -m venv "${venv}"

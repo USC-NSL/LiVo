@@ -113,7 +113,9 @@ build_dependency() {
         -DBUILD_CUDA=ON -DBUILD_GPU=ON -DWITH_CUDA=ON \
         -DBUILD_common=ON -DBUILD_octree=ON -DBUILD_filters=ON \
         -DBUILD_geometry=ON -DBUILD_io=ON -DBUILD_segmentation=ON \
-        -DBUILD_visualization=ON -DBUILD_registration=ON -DBUILD_apps=ON
+        -DBUILD_visualization=ON -DBUILD_registration=ON -DBUILD_apps=ON \
+        -DBUILD_gpu_kinfu_tools=OFF \
+        -DBUILD_gpu_kinfu_large_scale_tools=OFF
       cmake_install
       ;;
     open3d)
@@ -121,7 +123,12 @@ build_dependency() {
         -DBUILD_SHARED_LIBS=ON -DBUILD_PYTHON_MODULE=OFF \
         -DBUILD_EXAMPLES=OFF -DBUILD_UNIT_TESTS=OFF \
         -DBUILD_GUI=ON -DBUILD_CUDA_MODULE=ON \
+        -DBUILD_WEBRTC=OFF \
         -DGLIBCXX_USE_CXX11_ABI=ON
+      # Materialize external archives whose Open3D 0.18 Ninja byproduct
+      # declarations are missing or use a different filename.
+      cmake --build "${build_dir}" --parallel "${JOBS}" \
+        --target ext_curl ext_vtk ext_uvatlas
       cmake_install
       ;;
     draco)

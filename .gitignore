@@ -227,6 +227,7 @@ out/
 /Multiview/lib/*/install/
 /Multiview/config/local/
 /Scripts/livo-site.sh
+/Scripts/mm_time
 *.log
 
 # Other folders
