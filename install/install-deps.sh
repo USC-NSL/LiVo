@@ -54,6 +54,12 @@ case "${VERSION_ID}" in
     ;;
 esac
 
+for source_file in /etc/apt/sources.list.d/keithw-ubuntu-mahimahi-*.list; do
+  [[ -e "${source_file}" ]] || continue
+  log "Disabling obsolete Mahimahi PPA: ${source_file}"
+  sudo mv -- "${source_file}" "${source_file}.disabled"
+done
+
 log "Installing Ubuntu ${VERSION_ID} system prerequisites"
 sudo apt-get update
 
@@ -156,9 +162,17 @@ done
 log "Using Python ${python_version} at ${python_cmd}"
 
 venv="${TOOLS_DIR}/venv"
-"${python_cmd}" -m venv "${venv}"
-"${venv}/bin/pip" install --upgrade pip
-"${venv}/bin/pip" install "meson==1.4.2" "ninja==1.11.1.1" "tomli==2.0.1"
+clean_python_env=(env -u PYTHONPATH -u PYTHONHOME)
+if [[ -e "${venv}" ]] &&
+   { [[ ! -x "${venv}/bin/python" ]] ||
+     ! "${clean_python_env[@]}" "${venv}/bin/python" -m pip --version >/dev/null 2>&1; }; then
+  log "Removing incomplete Python virtual environment: ${venv}"
+  rm -rf "${venv}"
+fi
+"${clean_python_env[@]}" "${python_cmd}" -m venv "${venv}"
+"${clean_python_env[@]}" "${venv}/bin/python" -m pip install --upgrade pip
+"${clean_python_env[@]}" "${venv}/bin/python" -m pip install \
+  "meson==1.4.2" "ninja==1.11.1.1" "tomli==2.0.1"
 
 if [[ ":${PATH}:" != *":${HOME}/.local/bin:"* ]]; then
   log "Add this to your shell profile before building LiVo:"
