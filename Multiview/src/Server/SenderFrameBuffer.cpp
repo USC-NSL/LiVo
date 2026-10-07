@@ -167,7 +167,8 @@ SenderFrameBuffer::SenderFrameBuffer(const std::string &type, const uint32_t max
     // std::string method = "livo_nocull";
 	std::string method = "livo";		// TODO: Rajrup: Change this to livo
 
-	std::string path = FORMAT("/datassd/pipeline_cpp/server_tiled/e2e_latency/" << method << "/"); 
+    std::string output_root = FLAGS_output_dir.empty() ? "output" : FLAGS_output_dir;
+	std::string path = FORMAT(output_root << "/e2e_latency/" << method << "/");
 	create_folder(path);
 
     fs::path filepath_webrtc{FORMAT(path << "0_" << type << "_webrtc_sender_timestamp.txt")};

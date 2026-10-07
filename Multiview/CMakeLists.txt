@@ -1,11 +1,31 @@
 # CMakeList.txt : CMake project for Multiview, include source and define
 # project specific logic here.
 # Minimum cmake version
-cmake_minimum_required (VERSION 3.14 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.20 FATAL_ERROR)
 
 # Abseil currently supports >= C++17.
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(THREADS_PREFER_PTHREAD_FLAG ON)
+
+# Dependency installation is a separate phase. Prefer
+# Multiview/lib/<dependency>/install, then fall back to system packages.
+include(LiVoDependencies)
+
+# Generate metadata bindings with the already-installed FlatBuffers compiler.
+# This invokes flatc only; it does not build FlatBuffers as part of LiVo.
+find_program(FLATC_EXECUTABLE NAMES flatc REQUIRED)
+set(LIVO_GENERATED_DIR "${CMAKE_CURRENT_BINARY_DIR}/generated")
+file(MAKE_DIRECTORY "${LIVO_GENERATED_DIR}")
+execute_process(
+	COMMAND "${FLATC_EXECUTABLE}" -o "${LIVO_GENERATED_DIR}" --cpp
+			"${CMAKE_CURRENT_SOURCE_DIR}/src/test/frameInfo.fbs"
+	RESULT_VARIABLE LIVO_FLATC_RESULT
+	ERROR_VARIABLE LIVO_FLATC_ERROR)
+if(NOT LIVO_FLATC_RESULT EQUAL 0)
+	message(FATAL_ERROR "flatc failed: ${LIVO_FLATC_ERROR}")
+endif()
+include_directories(BEFORE "${LIVO_GENERATED_DIR}")
 
 # For Open3D Link:http://www.open3d.org/docs/latest/tutorial/C++/cplusplus_interface.html#ubuntu-macos
 if(POLICY CMP0091)
@@ -13,131 +33,23 @@ if(POLICY CMP0091)
     cmake_policy(SET CMP0091 NEW)
 endif()
 
-# Eigen
-find_package(Eigen3 REQUIRED NO_MODULE)
+# FFmpeg is an interface-only pkg-config wrapper used by ffmpeg_test.
+set(FFMPEG_SRC_DIR "${CMAKE_CURRENT_SOURCE_DIR}/lib/FFmpeg")
+add_subdirectory("${FFMPEG_SRC_DIR}")
 
-# FFMpeg
-set(FFMPEG_SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/lib/FFmpeg)
-add_subdirectory(${FFMPEG_SRC_DIR}) 
-
-# Add FlatBuffers directly to our build. This defines the `flatbuffers` target.
-set(FLATBUFFERS_SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/lib/flatbuffers)
-add_subdirectory(${FLATBUFFERS_SRC_DIR}
-                 ${CMAKE_CURRENT_BINARY_DIR}/flatbuffers-build
-                 EXCLUDE_FROM_ALL)
-
-# GFlags
-set(GFLAGS_SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/lib/gflags)
-add_subdirectory(${GFLAGS_SRC_DIR})
-
-# ABSEIL
-set(ABSEIL_SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/lib/abseil-cpp)
-add_subdirectory(${ABSEIL_SRC_DIR})
-
-# Find required packages
-find_package(PkgConfig REQUIRED)
-
-# Find GStreamer package 
-pkg_check_modules(GST REQUIRED gstreamer-1.0 gstreamer-webrtc-1.0 gstreamer-sdp-1.0)
-pkg_check_modules(GST_APP REQUIRED gstreamer-app-1.0)
-
-# DRACO
-find_package(draco REQUIRED CONFIG)
-if (NOT draco_FOUND)
-	message(FATAL_ERROR "Can't find libdraco")
-endif()
-
-# Typically you don't care so much for a third party library's tests to be
-# run from your own project's code.
-set(JSON_BuildTests OFF CACHE INTERNAL "")
-set(JSON_SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/lib/json)
-add_subdirectory(${JSON_SRC_DIR})
-
-# Find external packages
-find_package(PCL 1.12.0 REQUIRED)
-find_package(Boost REQUIRED COMPONENTS program_options filesystem date_time chrono serialization system json)
-
-# Find installed OpenCV
-list(APPEND CMAKE_PREFIX_PATH "/home/lei/opencv/opencv-3.4.20_install")
-find_package(OpenCV REQUIRED)
-
-# Find ZSTD
-find_package(PkgConfig REQUIRED)
-pkg_check_modules(ZSTD REQUIRED libzstd)
-
-# Find OpenMP package
-find_package(OpenMP)
-
-# We need boost libraries
-find_library(BOOST_SERIALIZATION boost_serialization)
-if (NOT BOOST_SERIALIZATION)
-	message(FATAL_ERROR "Can't find libboost_serialization")
-endif()
-
-find_library(BOOST_SYSTEM boost_system)
-if (NOT BOOST_SYSTEM)
-	message(FATAL_ERROR "Can't find libboost_system")
-endif()
-
-
-if(NOT OpenCV_FOUND)
-	message(FATAL_ERROR "Can't find OpenCV")
-endif()
-
-if(NOT OpenMP_CXX_FOUND)
-	message(FATAL_ERROR "Can't find OpenMP")
-endif()
-
-# Open3D
-# The options need to be the same as Open3D's default
-# If Open3D is configured and built with custom options, you'll also need to
-# specify the same custom options.
-option(STATIC_WINDOWS_RUNTIME "Use static (MT/MTd) Windows runtime" ON)
-option(BUILD_SHARED_LIBS ON)
-option(BUILD_PYTHON_MODULE ON)
-option(BUILD_EXAMPLES OFF)
-option(BUILD_CUDA_MODULE ON)
-if(STATIC_WINDOWS_RUNTIME)
-    set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
-else()
-    set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
-endif()
-
-# Find installed Open3D, which exports Open3D::Open3D
-list(APPEND CMAKE_PREFIX_PATH "/home/lei/open3d_install")
-find_package(Open3D REQUIRED)
-message("Open3D_INCLUDE_DIRS: ${Open3D_INCLUDE_DIRS}")
-
-message("Project Path: ${PROJECT_SOURCE_DIR}")
+message(STATUS "Open3D include directories: ${Open3D_INCLUDE_DIRS}")
+message(STATUS "Project path: ${PROJECT_SOURCE_DIR}")
 
 # Specify additional directories for the linker
 link_directories(${GST_LIBRARY_DIRS})
 link_directories(${PCL_LIBRARY_DIRS})
+link_directories(${ZSTD_LIBRARY_DIRS})
 add_definitions(${PCL_DEFINITIONS})
 
-# FFmpeg doesn't support find_package(). PkgConfig (sudo apt install pkg-config) can be used to link the libraries more conveniently 
-
-# Adding files from KINECT SDK folder - Change this path to Azure Sensor SDK folder in your machine
-# Rajrup: To Do: Later add the SDK to the lib folder and point to CMakeLists
-set(KINECT_SDK_PATH "/home/lei/Azure-Kinect-Sensor-SDK")
-set(KINECT_TOOLS_PATH "/usr/lib/x86_64-linux-gnu/libk4a1.4/")
-
-list(APPEND KINECT_SDK_LIBS 
-	${KINECT_SDK_PATH}/build/bin/libk4a.so
-	${KINECT_SDK_PATH}/build/bin/libk4arecord.so)
-
-# Threads
-set(THREADS_PREFER_PTHREAD_FLAG ON)
-find_package(Threads REQUIRED)
-
-# List of libraries to link
-LIST(APPEND ABSEIL_LIBS absl::log absl::flat_hash_map)
-LIST(APPEND GFLAGS_LIBS gflags::gflags)
-LIST(APPEND FLATBUFFERS_LIBS flatbuffers)
-LIST(APPEND JSON_LIBS nlohmann_json::nlohmann_json)
-LIST(APPEND THREAD_LIBS Threads::Threads OpenMP::OpenMP_CXX rt)
-LIST(APPEND DRACO_LIBS -Wl,--whole-archive draco -Wl,--no-whole-archive)
-LIST(APPEND OPEN3D_INCLUDES ${Open3D_INCLUDE_DIRS} ${Open3D_INCLUDE_DIRS}/open3d ${Open3D_INCLUDE_DIRS}/open3d/3rdparty) 
+list(APPEND OPEN3D_INCLUDES
+	${Open3D_INCLUDE_DIRS}
+	${Open3D_INCLUDE_DIRS}/open3d
+	${Open3D_INCLUDE_DIRS}/open3d/3rdparty)
 
 # Include directories
 include_directories(
@@ -145,16 +57,13 @@ include_directories(
 					${GST_APP_INCLUDE_DIRS}								# GStreamer App directories
 					${PCL_INCLUDE_DIRS} 								# PCL directories
 					${Boost_INCLUDE_DIRS} 								# Boost libraries
+					${OpenCV_INCLUDE_DIRS}
 					${PROJECT_SOURCE_DIR}/Multiview/src 				# Source Files
 					${PROJECT_SOURCE_DIR}/Multiview/include 			# Header Files
 					${PROJECT_SOURCE_DIR}/Multiview/include/Server
-					${PROJECT_SOURCE_DIR}/Multiview/include/GeoDist
 					${PROJECT_SOURCE_DIR}/Multiview/include/test 		# Header Files for test
-					${KINECT_SDK_PATH}/include 							# Kinect SDK Header Files
-					${EIGEN3_INCLUDE_DIR}
-					${FLATBUFFERS_INCLUDE_DIR}
-					${GFLAGS_INCLUDE_DIR}
-					${ABSEIL_SRC_DIR}
+					${K4A_INCLUDE_DIR} 								# Kinect SDK Header Files
+					${EIGEN3_INCLUDE_DIRS}
 					${ZSTD_INCLUDE_DIRS}
 					${OPEN3D_INCLUDES}
 					)

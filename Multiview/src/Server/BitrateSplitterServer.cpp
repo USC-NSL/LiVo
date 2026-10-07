@@ -74,7 +74,6 @@ bool BitrateSplitterServer::load_gt_color_parallel(cv::Mat &color_frame, uint32_
     cv::hconcat(color_images_cv2 + 5, 5, bottom_row);
     cv::vconcat(top_row, bottom_row, color_frame);
 
-    cv::imwrite(FORMAT("/home/lei/data/pipeline/server_tiled/pipeline_new/test/" << frame_id << "_gt_color.png"), color_frame);
     return true;
 }
 
@@ -106,6 +105,5 @@ bool BitrateSplitterServer::load_gt_depth_parallel(cv::Mat &depth_frame, uint32_
     cv::hconcat(depth_images_cv2 + 5, 5, bottom_row);
     cv::vconcat(top_row, bottom_row, depth_frame);
 
-    cv::imwrite(FORMAT("/home/lei/data/pipeline/server_tiled/pipeline_new/test/" << frame_id << "_gt_depth.png"), depth_frame);
     return true;
 }

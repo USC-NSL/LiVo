@@ -137,7 +137,9 @@ void MultiviewClientPoolNew::dummy_run()
 	// wclient_ready_to_init.store(true);
 
 	// Initialize WebRTC Server
-	unique_ptr<NetworkReceiverPool> wclient = make_unique<NetworkReceiverPool>(FLAGS_save_frame, "/home/lei/data/pipeline/client_tiled/pipeline_new/test/"); // TODO, CHANGE, MODIFY: Output directory for test dumps
+	std::string output_root = FLAGS_output_dir.empty() ? "output" : FLAGS_output_dir;
+	unique_ptr<NetworkReceiverPool> wclient = make_unique<NetworkReceiverPool>(
+		FLAGS_save_frame, FORMAT(output_root << "/client_frames/"));
 	// vector<thread> threads;
 	// int nInputObjects = IQ_CAPACITY - 1;
 	// for (uint32_t i = 0; i < nInputObjects; i++)
@@ -218,10 +220,11 @@ void MultiviewClientPoolNew::run()
 	// wclient_ready_to_init.store(true);
 
 	// Initialize WebRTC Server
-	std::string save_recv_path = "/home/lei/data/pipeline/client_tiled/pipeline_new/test/";										// TODO, CHANGE, MODIFY: Output directory for test dumps
+	std::string output_root = FLAGS_output_dir.empty() ? "output" : FLAGS_output_dir;
+	std::string save_recv_path = FORMAT(output_root << "/client_frames/");
 	if(FLAGS_render_image_path != "")
 		save_recv_path = FLAGS_render_image_path;
-	unique_ptr<NetworkReceiverPool> wclient = make_unique<NetworkReceiverPool>(FLAGS_save_frame, FLAGS_render_image_path);
+	unique_ptr<NetworkReceiverPool> wclient = make_unique<NetworkReceiverPool>(FLAGS_save_frame, save_recv_path);
 
     vector<thread> threads;
 	int nInputObjects = IQ_CAPACITY - 1;		// Viewer thread is not included
@@ -237,10 +240,10 @@ void MultiviewClientPoolNew::run()
 	// std::string method = "livo_nocull";
 	std::string method = "livo";		// TODO: Rajrup: Changee this to livo. Also Change path in ReceiverFrameBuffer.cpp in ReceiverFrameBuffer() constructor
 
-	std::string path = FORMAT("/datassd/pipeline_cpp/server_tiled/e2e_latency/" << method << "/"); 
+	std::string path = FORMAT(output_root << "/e2e_latency/" << method << "/");
 	create_folder(path);
 
-	std::string ablation_dir = FORMAT("/datassd/pipeline_cpp/server_tiled/ablation/" << method << "/");
+	std::string ablation_dir = FORMAT(output_root << "/ablation/" << method << "/");
 	create_folder(ablation_dir);
 
 	std::string out_bitrate_dir = FORMAT(FLAGS_output_dir << "/bitrate_split_s_" << FLAGS_server_cull << "/log" << LOG_ID << "/");

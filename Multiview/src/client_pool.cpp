@@ -42,7 +42,7 @@ DEFINE_int32(end_frame_id, -1, "End frame ID.");
 DEFINE_int32(ncaptures, 6000, "Number of captures to be made or loaded from disk.");
 DEFINE_int32(load_frustum, LOAD_FRUSTUM::PANOPTIC, "0 - Use deafult frustum (PCL), 1 - User trace on Panoptic, 2 - User trace on Kinect (Not implemented), 3 - Load frustum from disk as .txt.");
 DEFINE_int32(client_cull, CULLING::NORMAL_CULLING, "0 - No Culling, 1 - Clip culling. 2 - Voxel Clip culling. 3 - Normal culling. 4 - Normal Voxel culling.");
-DEFINE_string(config_file, "/home/lei/rajrup/KinectStream/Multiview/config/panoptic.json", "Path to config file.");
+DEFINE_string(config_file, "Multiview/config/panoptic.json", "Path to config file.");
 DEFINE_int32(client_fps, 30, "Client FPS.");
 DEFINE_bool(ground, false, "Ground removal.");
 DEFINE_bool(tile, true, "Receiving tiled images");

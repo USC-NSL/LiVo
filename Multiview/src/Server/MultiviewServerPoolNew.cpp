@@ -199,7 +199,9 @@ void MultiviewServerPoolNew::run()
 	wsserver_ready_to_init2.store(true);
 	
 	// Initialize WebRTC Server
-	unique_ptr<NetworkSenderPool> wserver = make_unique<NetworkSenderPool>(FLAGS_save_frame, "/home/lei/data/pipeline/server_tiled/pipeline_new/test/");
+	std::string output_root = FLAGS_output_dir.empty() ? "output" : FLAGS_output_dir;
+	std::string frame_output_dir = FORMAT(output_root << "/server_frames/");
+	unique_ptr<NetworkSenderPool> wserver = make_unique<NetworkSenderPool>(FLAGS_save_frame, frame_output_dir);
 
 	LOG(INFO) << "Server initialization done";
 	
@@ -211,10 +213,10 @@ void MultiviewServerPoolNew::run()
 	// std::string method = "livo_nocull";
 	std::string method = "livo";		// TODO: Rajrup: Chane this to livo. Also Change path in SenderFrameBuffer.cpp in SenderFrameBuffer() constructor
 
-	std::string path = FORMAT("/datassd/pipeline_cpp/server_tiled/e2e_latency/" << method << "/"); 
+	std::string path = FORMAT(output_root << "/e2e_latency/" << method << "/");
 	create_folder(path);
 
-	std::string ablation_dir = FORMAT("/datassd/pipeline_cpp/server_tiled/ablation/" << method << "/");
+	std::string ablation_dir = FORMAT(output_root << "/ablation/" << method << "/");
 	create_folder(ablation_dir);
 	
 	std::string out_bitrate_dir = FORMAT(FLAGS_output_dir << "/bitrate_split_s_" << FLAGS_server_cull << "/log" << LOG_ID << "/");
@@ -222,7 +224,7 @@ void MultiviewServerPoolNew::run()
 
 	for (uint32_t i = 0; i < m_nThreads; i++)
 	{
-		threads.push_back(thread([this, i, sleep_time, &wserver, &path, &ablation_dir, &out_bitrate_dir]
+		threads.push_back(thread([this, i, sleep_time, &wserver, &path, &ablation_dir, &out_bitrate_dir, &output_root]
 		{
 			switch(i)
 			{
@@ -330,7 +332,8 @@ void MultiviewServerPoolNew::run()
 					
 					std::string trace_type = "tracep1-scaled10.0_user_test";
 					// std::string trace_type = "wifi-25-scaled15.0";
-					std::string bw_path = FORMAT("/datassd/pipeline/mm_bitrate_estimate/" << trace_type << "/" << FLAGS_seq_name << "/" << USER_TRACE_FOLDER << "/");
+					std::string bw_path = FORMAT(output_root << "/bandwidth_estimate/" << trace_type << "/" << FLAGS_seq_name << "/" << USER_TRACE_FOLDER << "/");
+					create_folder(bw_path);
 					fs::path filepath_bw{FORMAT(bw_path << "bw_server_estimate_log" << LOG_ID << ".csv")};
 
 					fs::ofstream file_uv, file_uv_proc, file_bw, file_frustum_size;

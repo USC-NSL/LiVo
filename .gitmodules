@@ -1,15 +1,60 @@
 [submodule "Multiview/lib/flatbuffers"]
 	path = Multiview/lib/flatbuffers
 	url = https://github.com/google/flatbuffers.git
+	ignore = untracked
 [submodule "Multiview/lib/json"]
 	path = Multiview/lib/json
 	url = https://github.com/nlohmann/json.git
+	ignore = untracked
 [submodule "Multiview/lib/boost"]
 	path = Multiview/lib/boost
 	url = https://github.com/boostorg/boost.git
+	ignore = untracked
 [submodule "Multiview/lib/gflags"]
 	path = Multiview/lib/gflags
 	url = https://github.com/gflags/gflags.git
+	ignore = untracked
 [submodule "Multiview/lib/abseil-cpp"]
 	path = Multiview/lib/abseil-cpp
 	url = https://github.com/abseil/abseil-cpp.git
+	ignore = untracked
+[submodule "Multiview/lib/opencv"]
+	path = Multiview/lib/opencv
+	url = https://github.com/opencv/opencv.git
+	ignore = untracked
+[submodule "Multiview/lib/opencv_contrib"]
+	path = Multiview/lib/opencv_contrib
+	url = https://github.com/opencv/opencv_contrib.git
+	ignore = untracked
+[submodule "Multiview/lib/open3d"]
+	path = Multiview/lib/open3d
+	url = https://github.com/isl-org/Open3D.git
+	ignore = untracked
+[submodule "Multiview/lib/pcl"]
+	path = Multiview/lib/pcl
+	url = https://github.com/PointCloudLibrary/pcl.git
+	ignore = untracked
+[submodule "Multiview/lib/gstreamer"]
+	path = Multiview/lib/gstreamer
+	url = https://gitlab.freedesktop.org/gstreamer/gstreamer.git
+	ignore = untracked
+[submodule "Multiview/lib/azure-kinect"]
+	path = Multiview/lib/azure-kinect
+	url = https://github.com/Rajrup/Azure-Kinect-Sensor-SDK.git
+	ignore = untracked
+[submodule "Multiview/lib/eigen"]
+	path = Multiview/lib/eigen
+	url = https://gitlab.com/libeigen/eigen.git
+	ignore = untracked
+[submodule "Multiview/lib/zstd"]
+	path = Multiview/lib/zstd
+	url = https://github.com/facebook/zstd.git
+	ignore = untracked
+[submodule "Multiview/lib/draco"]
+	path = Multiview/lib/draco
+	url = https://github.com/google/draco.git
+	ignore = untracked
+[submodule "Multiview/lib/usrsctp"]
+	path = Multiview/lib/usrsctp
+	url = https://github.com/sctplab/usrsctp.git
+	ignore = untracked

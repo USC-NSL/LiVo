@@ -217,8 +217,17 @@ _deps
 # Output folder
 out/
 
-# Traces folder
-Scripts/mahi_traces/
+# Livo folders
+/build/
+/install/cache/
+/install/logs/
+/install/tools/
+/install/dependencies.ready
+/Multiview/lib/*/build-livo/
+/Multiview/lib/*/install/
+/Multiview/config/local/
+/Scripts/livo-site.sh
+*.log
 
 # Other folders
 UnityRendering/
@@ -230,3 +239,5 @@ data/tmp/
 # Other files
 Notes.md
 .DS_Store
+.cursorignore
+livo_conext2025.pdf

@@ -1,3 +1,10 @@
+#!/usr/bin/env bash
+set -euo pipefail
+SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck disable=SC1091
+source "${SCRIPT_DIR}/livo-env.sh"
+cd "${SCRIPT_DIR}"
+
 # CONFIG
 START_FRAME=2
 END_FRAME=5517
@@ -8,7 +15,7 @@ COLOR_QP=0
 DEPTH_QP=0
 
 SEQ_NAME=160906_band2_with_ground
-CONFIG_FILE=/home/lei/rajrup/KinectStream/Multiview/config/panoptic_160906_band2.json
+CONFIG_FILE="${LIVO_CONFIG_DIR}/panoptic_160906_band2.json"
 
 # MM_TRACE_NAME=mh-120-240-new
 MM_TRACE_NAME=tracep1-scaled10.0
@@ -16,10 +23,12 @@ MM_TRACE_NAME=tracep1-scaled10.0
 
 # output_dir="/datassd/pipeline_cpp/server_tiled/ablation/bitrate_static_split_$D2C_SPLIT/$SEQ_NAME/"
 # output_dir="/datassd/pipeline_cpp/server_tiled/ablation/bitrate_dynamic_split/$SEQ_NAME/"
-output_dir="/home/lei/data/pipeline/server_tiled/pipeline_new/test/"
+output_dir="${LIVO_OUTPUT_ROOT}/server_tiled/pipeline_new/test/"
 
 # Run Pipeline without mahimahi, abr, and save frames
-taskset --cpu-list 0-11 ../build/Multiview/MultiviewServerPoolNew \
+taskset --cpu-list "${LIVO_SERVER_CPUS}" "${LIVO_BUILD_DIR}/Multiview/MultiviewServerPoolNew" \
+        --server_host="${LIVO_SERVER_HOST}" \
+        --mahimahi_host="${LIVO_MAHIMAHI_HOST}" \
         --seq_name=$SEQ_NAME \
         --config_file=$CONFIG_FILE \
         --start_frame_id=$START_FRAME \

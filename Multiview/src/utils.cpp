@@ -14,6 +14,7 @@
 //    }
 #include <opencv2/highgui.hpp>
 #include <omp.h>
+#include <cstdlib>
 #include "utils.h"
 #include "pconsts.h"
 
@@ -508,6 +509,18 @@ void parse_config(const string &config_file)
         SEQ_NAME = config["seq_name"].get<string>();
         PANOPTIC_DATA_PATH = config["panoptic_path"].get<string>();
         USER_DATA_PATH = config["user_trace_path"].get<string>();
+        fs::path user_data_path(USER_DATA_PATH);
+        if (user_data_path.is_relative())
+        {
+            const char *livo_root = std::getenv("LIVO_ROOT");
+            if (livo_root == nullptr || *livo_root == '\0')
+                LOG(FATAL) << "LIVO_ROOT must be set when user_trace_path is relative: "
+                           << USER_DATA_PATH;
+
+            USER_DATA_PATH = (fs::path(livo_root) / user_data_path).lexically_normal().string();
+            if (!USER_DATA_PATH.empty() && USER_DATA_PATH.back() != '/')
+                USER_DATA_PATH += '/';
+        }
         LOG_ID = config["log_id"].get<int>();
         USER_TRACE_FOLDER = config["user_trace_folder"].get<string>();
         QRCODE_FOLDER = config["qrcode_folder"].get<string>();

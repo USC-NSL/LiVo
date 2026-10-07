@@ -1,0 +1,17 @@
+# name|submodule path|release ref|commit SHA|upstream URL
+cmake|-|3.31.12|-|https://github.com/Kitware/CMake/releases/tag/v3.31.12
+opencv|Multiview/lib/opencv|3.4.20|1eb1d4c3708f2bd95562cedd58d28461505c2d37|https://github.com/opencv/opencv.git
+opencv_contrib|Multiview/lib/opencv_contrib|3.4.20|f852576142dec4c99fbeb89902129192cda3e7b6|https://github.com/opencv/opencv_contrib.git
+open3d|Multiview/lib/open3d|v0.18.0|0f06a149c4fb9406fd3e432a5cb0c024f38e2f0e|https://github.com/isl-org/Open3D.git
+pcl|Multiview/lib/pcl|pcl-1.12.1|e8ed4be802f7d0b1acff2f8b01d7c5f381190e05|https://github.com/PointCloudLibrary/pcl.git
+gstreamer|Multiview/lib/gstreamer|1.24.13|0a7d7071207d40cc003f6cd9f2f123f759fdfce1|https://gitlab.freedesktop.org/gstreamer/gstreamer.git
+usrsctp|Multiview/lib/usrsctp|0.9.5.0|07f871bda23943c43c9e74cc54f25130459de830|https://github.com/sctplab/usrsctp.git
+azure-kinect|Multiview/lib/azure-kinect|release/1.4.x custom|53d7a62a2e33bf7d588a717d49443a84a8807219|https://github.com/Rajrup/Azure-Kinect-Sensor-SDK.git
+eigen|Multiview/lib/eigen|3.4.1|d71c30c47858effcbd39967097a2d99ee48db464|https://gitlab.com/libeigen/eigen.git
+boost|Multiview/lib/boost|boost-1.80.0|32da69a36f84c5255af8a994951918c258bac601|https://github.com/boostorg/boost.git
+flatbuffers|Multiview/lib/flatbuffers|v25.12.19|7e163021e59cca4f8e1e35a7c828b5c6b7915953|https://github.com/google/flatbuffers.git
+zstd|Multiview/lib/zstd|v1.5.7|f8745da6ff1ad1e7bab384bd1f9d742439278e99|https://github.com/facebook/zstd.git
+draco|Multiview/lib/draco|1.5.7|8786740086a9f4d83f44aa83badfbea4dce7a1b5|https://github.com/google/draco.git
+abseil|Multiview/lib/abseil-cpp|20250814.2|0cf0a5c9d12cc3783363ab20f11613e69fd04c9a|https://github.com/abseil/abseil-cpp.git
+gflags|Multiview/lib/gflags|v2.3.0|33bb3461e10864b5406353d3a1fb7ff34c2314b8|https://github.com/gflags/gflags.git
+json|Multiview/lib/json|v3.12.0|55f93686c01528224f448c19128836e7df245f72|https://github.com/nlohmann/json.git

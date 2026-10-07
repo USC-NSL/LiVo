@@ -23,7 +23,7 @@ DEFINE_int32(client_cull, CULLING::NO_CULLING, "0 - No Culling, 1 - Clip culling
 DEFINE_bool(save_frustum, false, "Save frustum to disk as .txt.");
 DEFINE_int32(load_frustum, LOAD_FRUSTUM::NONE, "0 - Use default frustum (PCL), 1 - User trace on Panoptic, 2 - User trace on Kinect (Not implemented), 3 - Load frustum from disk as .txt.");
 DEFINE_bool(update_frustum, false, "Placeholder.");
-DEFINE_string(config_file, "/home/lei/rajrup/KinectStream/Multiview/config/panoptic.json", "Path to config file.");
+DEFINE_string(config_file, "Multiview/config/panoptic.json", "Path to config file.");
 
 using namespace std;
 namespace fs = boost::filesystem;

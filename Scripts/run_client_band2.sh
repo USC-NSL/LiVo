@@ -1,3 +1,10 @@
+#!/usr/bin/env bash
+set -euo pipefail
+SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck disable=SC1091
+source "${SCRIPT_DIR}/livo-env.sh"
+cd "${SCRIPT_DIR}"
+
 # CONFIG
 START_FRAME=2
 END_FRAME=5517
@@ -9,7 +16,7 @@ BITRATE=$(($COLOR_BITRATE+$DEPTH_BITRATE))
 D2C_SPLIT=0.875     # 7/8
 
 SEQ_NAME=160906_band2_with_ground
-CONFIG_FILE=/home/lei/rajrup/KinectStream/Multiview/config/panoptic_160906_band2.json
+CONFIG_FILE="${LIVO_CONFIG_DIR}/panoptic_160906_band2.json"
 LOG_ID=1
 
 COLOR_BITRATE_M=$(($COLOR_BITRATE/1000))
@@ -34,7 +41,7 @@ MM_TRACE_NAME=tracep1-scaled10.0
 # save_ptcl_path="o3d_nvenc_${BITRATE}k_fps${FPS}_s_nocull_c_nocull/"
 # save_ptcl_path="o3d_nvenc_${BITRATE}k_fps${FPS}_s_cull_c_cull/"
 
-output_dir="/home/lei/data/pipeline/client_tiled/pipeline_new/test/"
+output_dir="${LIVO_OUTPUT_ROOT}/client_tiled/pipeline_new/test/"
 save_ptcl_path=""
 render_image_path=$save_ptcl_path
 save_cbitrate_file=""
@@ -74,7 +81,8 @@ fi
 #         --save_dbitrate_file=$save_dbitrate_file \
 #         > client_band2.log 2>&1
 
-taskset --cpu-list 0-19 ../build/Multiview/MultiviewClientPoolNew \
+taskset --cpu-list "${LIVO_CLIENT_CPUS}" "${LIVO_BUILD_DIR}/Multiview/MultiviewClientPoolNew" \
+        --server_host="${LIVO_SERVER_HOST}" \
         --seq_name=$SEQ_NAME \
         --config_file=$CONFIG_FILE \
         --use_split_adapt=true \

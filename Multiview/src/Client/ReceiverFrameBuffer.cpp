@@ -18,7 +18,8 @@ m_qrDecoder(), m_rectZero(QR_BOX[0], QR_BOX[1], QR_BOX[2], QR_BOX[3]), type(type
     // std::string method = "livo_nocull";
 	std::string method = "livo";		// TODO: Rajrup: Changee this to livo.
 
-	std::string path = FORMAT("/datassd/pipeline_cpp/server_tiled/e2e_latency/" << method << "/"); 
+    std::string output_root = FLAGS_output_dir.empty() ? "output" : FLAGS_output_dir;
+	std::string path = FORMAT(output_root << "/e2e_latency/" << method << "/");
 	create_folder(path);
 
     fs::path filepath_webrtc{FORMAT(path << "0_" << type << "_webrtc_receiver_timestamp.txt")};
@@ -205,7 +206,12 @@ bool ReceiverFrameBuffer::insert_dframe(uint8_t *data, uint32_t data_size, int w
     {
         LOG(WARNING) << "Type - " << type << " : Failed to detect QR code in depth frame. Expected frame ID: " << latest_frame_id.load() + 1;
         cv::Mat res(h, w, CV_8UC(CHANNEL_DIM::BGRA), data);
-        cv::imwrite(FORMAT("/home/lei/data/pipeline/client_tiled/pipeline_new/test/" << latest_frame_id.load() + 1 << "_depth_gst.png"), res);
+        if(!FLAGS_output_dir.empty())
+        {
+            std::string debug_dir = FORMAT(FLAGS_output_dir << "/client_frames/");
+            create_folder(debug_dir);
+            cv::imwrite(FORMAT(debug_dir << latest_frame_id.load() + 1 << "_depth_gst.png"), res);
+        }
         return false;
     }
     file_webrtc << dframeID << "," << sw.Curr() << endl;

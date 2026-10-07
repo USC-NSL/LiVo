@@ -7,10 +7,10 @@
 #include "flatbuffers/flatbuffers.h"
 
 // Ensure the included flatbuffers.h is the same version as when this file was
-// generated, otherwise it may not be compatible.25.9.23
+// generated, otherwise it may not be compatible.
 static_assert(FLATBUFFERS_VERSION_MAJOR == 25 &&
-              FLATBUFFERS_VERSION_MINOR == 9 &&
-              FLATBUFFERS_VERSION_REVISION == 23,
+              FLATBUFFERS_VERSION_MINOR == 12 &&
+              FLATBUFFERS_VERSION_REVISION == 19,
              "Non-compatible flatbuffers version included");
 
 namespace Multiview {
@@ -19,7 +19,7 @@ namespace Frame {
 struct FrameInfo;
 struct FrameInfoBuilder;
 
-struct FrameInfo FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+struct FrameInfo FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef FrameInfoBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_FRAME_NUMBER = 4,
@@ -31,7 +31,8 @@ struct FrameInfo FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   int32_t view_number() const {
     return GetField<int32_t>(VT_VIEW_NUMBER, -1);
   }
-  bool Verify(flatbuffers::Verifier &verifier) const {
+  template <bool B = false>
+  bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyField<int32_t>(verifier, VT_FRAME_NUMBER, 4) &&
            VerifyField<int32_t>(verifier, VT_VIEW_NUMBER, 4) &&
@@ -41,27 +42,27 @@ struct FrameInfo FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
 
 struct FrameInfoBuilder {
   typedef FrameInfo Table;
-  flatbuffers::FlatBufferBuilder &fbb_;
-  flatbuffers::uoffset_t start_;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
   void add_frame_number(int32_t frame_number) {
     fbb_.AddElement<int32_t>(FrameInfo::VT_FRAME_NUMBER, frame_number, -1);
   }
   void add_view_number(int32_t view_number) {
     fbb_.AddElement<int32_t>(FrameInfo::VT_VIEW_NUMBER, view_number, -1);
   }
-  explicit FrameInfoBuilder(flatbuffers::FlatBufferBuilder &_fbb)
+  explicit FrameInfoBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  flatbuffers::Offset<FrameInfo> Finish() {
+  ::flatbuffers::Offset<FrameInfo> Finish() {
     const auto end = fbb_.EndTable(start_);
-    auto o = flatbuffers::Offset<FrameInfo>(end);
+    auto o = ::flatbuffers::Offset<FrameInfo>(end);
     return o;
   }
 };
 
-inline flatbuffers::Offset<FrameInfo> CreateFrameInfo(
-    flatbuffers::FlatBufferBuilder &_fbb,
+inline ::flatbuffers::Offset<FrameInfo> CreateFrameInfo(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
     int32_t frame_number = -1,
     int32_t view_number = -1) {
   FrameInfoBuilder builder_(_fbb);

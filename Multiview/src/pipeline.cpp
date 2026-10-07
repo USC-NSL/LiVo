@@ -20,7 +20,7 @@ DEFINE_bool(save_frustum, false, "Save frustum to disk as .txt.");
 DEFINE_int32(load_frustum, LOAD_FRUSTUM::PANOPTIC, "0 - Use default frustum (PCL), 1 - User trace on Panoptic, 2 - User trace on Kinect (Not implemented), 3 - Load frustum from disk as .txt.");
 DEFINE_bool(save_binary_mask, false, "Save binary mask to disk as .png.");
 DEFINE_bool(load_binary_mask, false, "Save binary mask to disk as .png.");
-DEFINE_string(config_file, "/home/lei/rajrup/KinectStream/Multiview/config/panoptic.json", "Path to config file.");
+DEFINE_string(config_file, "Multiview/config/panoptic.json", "Path to config file.");
 DEFINE_bool(ground, false, "Ground removal.");
 
 using namespace std;

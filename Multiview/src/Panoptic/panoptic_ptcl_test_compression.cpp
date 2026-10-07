@@ -29,7 +29,7 @@ DEFINE_int32(client_cull, CULLING::NORMAL_CULLING, "0 - No Culling, 1 - Clip cul
 DEFINE_int32(load_frustum, LOAD_FRUSTUM::PANOPTIC, "0 - Use deafult frustum (PCL), 1 - User trace on Panoptic, 2 - User trace on Kinect (Not implemented), 3 - Load frustum from disk as .txt.");
 DEFINE_bool(save_binary_mask, false, "Save binary mask to disk as .png."); // Ignore
 DEFINE_bool(load_binary_mask, false, "Load binary mask from disk.");       // Ignore
-DEFINE_string(config_file, "/home/lei/rajrup/KinectStream/Multiview/config/panoptic.json", "Path to config file.");
+DEFINE_string(config_file, "Multiview/config/panoptic.json", "Path to config file.");
 DEFINE_bool(ground, false, "Ground removal.");
 DEFINE_string(render_image_path, "", "Path to save render image using Open3D. Default is don't save");
 DEFINE_string(save_ptcl_path, "", "Path to save ptcl to disk as .ply(s). Default is don't save");

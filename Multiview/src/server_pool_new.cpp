@@ -39,7 +39,9 @@ DEFINE_bool(preload, false, "Preload frames into memory.");
 DEFINE_int32(load_frustum, LOAD_FRUSTUM::PANOPTIC, "0 - Use deafult frustum (PCL), 1 - User trace on Panoptic, 2 - User trace on Kinect (Not implemented), 3 - Load frustum from disk as .txt.");
 DEFINE_bool(save_binary_mask, false, "Save binary mask to disk as .png.");
 DEFINE_bool(tile, true, "Sending tiled images");
-DEFINE_string(config_file, "/home/lei/rajrup/KinectStream/Multiview/config/panoptic.json", "Path to config file.");
+DEFINE_string(config_file, "Multiview/config/panoptic.json", "Path to config file.");
+DEFINE_string(server_host, "127.0.0.1", "Server address used without Mahimahi.");
+DEFINE_string(mahimahi_host, "100.64.0.2", "Server address inside Mahimahi.");
 DEFINE_bool(ground, false, "Ground removal.");
 DEFINE_int32(send_ptcl, 0, "0 - Normal, 1 - Ptcl only");
 DEFINE_bool(save_frame, false, "Save frames to disk as .png(s).");
@@ -279,11 +281,11 @@ int main(int argc, char** argv)
     if(FLAGS_start_frame_id < 0)
         LOG(FATAL) << "Start frame ID not provided!";
 
-    SERVER_HOST_NEW = "68.181.32.205";  // Default server IP
+    SERVER_HOST_NEW = FLAGS_server_host;
     if(FLAGS_use_mm)
     {
         LOG(INFO) << "Using mahimahi for server side rate limiting";
-        SERVER_HOST_NEW = "100.64.0.2";
+        SERVER_HOST_NEW = FLAGS_mahimahi_host;
         
         // if(!FLAGS_use_server_bitrate_est)
         //     LOG(FATAL) << "use_server_bitrate_est should be true when use_mm is true!";   
