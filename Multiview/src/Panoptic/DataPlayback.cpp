@@ -395,16 +395,16 @@ bool DataPlayback::read_frustum_data(uint32_t &startFrameID, uint32_t &lastFrame
 
 	assert(data_frustum_pos.size() == data_frame_id.size());
 
-    file_name = FORMAT(m_userDataFolder << "processed_trace_log" << m_logID << ".txt");
-    fs::path out_file{file_name};
-    fs::ofstream ofs;
-    ofs.open(out_file, ios::out | ios::trunc);
-    if (!ofs.is_open())
-    {
-        LOG(ERROR) << "Failed to open file: " << out_file;
-        return false;
-    }
-    ofs << "frame_id,pos_x,pos_y,pos_z,rot_x,rot_y,rot_z,quat_x,quat_y,quat_z,quat_w,lookat_x,lookat_y,lookat_z,up_x,up_y,up_z\n";
+    // file_name = FORMAT(m_userDataFolder << "processed_trace_log" << m_logID << ".txt");
+    // fs::path out_file{file_name};
+    // fs::ofstream ofs;
+    // ofs.open(out_file, ios::out | ios::trunc);
+    // if (!ofs.is_open())
+    // {
+    //     LOG(ERROR) << "Failed to open file: " << out_file;
+    //     return false;
+    // }
+    // ofs << "frame_id,pos_x,pos_y,pos_z,rot_x,rot_y,rot_z,quat_x,quat_y,quat_z,quat_w,lookat_x,lookat_y,lookat_z,up_x,up_y,up_z\n";
 
 	// Calculate original frustum from position and rotation
 	for(int i = 0; i < data_frustum_pos.size(); i++)
@@ -467,7 +467,7 @@ bool DataPlayback::read_frustum_data(uint32_t &startFrameID, uint32_t &lastFrame
         assert(m_mapUserData.find(data.frameID) == m_mapUserData.end());
         m_mapUserData[data.frameID] = data;
 	}
-    ofs.close();
+    // ofs.close();
     m_currFrameID = m_startFrameID;
     return true;
 }
